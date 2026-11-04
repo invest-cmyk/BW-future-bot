@@ -1,0 +1,32 @@
+# Render Blueprint (optional)
+# Dashboard: https://dashboard.render.com → New → Blueprint
+# Or create services manually using the commands in RENDER.md
+
+services:
+  - type: web
+    name: futures-autopilot-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run dashboard/app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: BROKER
+        value: paper
+
+  - type: web
+    name: futures-tv-webhook
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn runners.tv_webhook_server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: TV_WEBHOOK_SECRET
+        sync: false
+      - key: TV_AUTO_EXECUTE
+        value: "0"
+      - key: BROKER
+        value: paper
